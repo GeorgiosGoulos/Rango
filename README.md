@@ -1,0 +1,2 @@
+# Rango
+A Django project
