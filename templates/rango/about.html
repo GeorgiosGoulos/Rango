@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+
+<html>
+
+    <head>
+        <title>About</title>
+    </head>
+
+    <body>
+        This is the About section of this webpage <br>
+        Var: {{ aboutVar }}<br>
+        <a href="/rango/">Back to rango</a><br/>
+        <img src="{% static "images/about.jpg " %}" alt="About..." />
+    </body>
+
+</html>
