@@ -2,6 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d0de4666-cd48-410f-b11f-d422c5e8a927" name="Default" comment="">
+      <change type="DELETED" beforePath="C:\Users\Ram\Desktop\Uni\Semester2\IT\code\tango_with_django_project\.idea\.name" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Ram\Desktop\Uni\Semester2\IT\code\tango_with_django_project\.idea\encodings.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Ram\Desktop\Uni\Semester2\IT\code\tango_with_django_project\.idea\misc.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Ram\Desktop\Uni\Semester2\IT\code\tango_with_django_project\.idea\modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Ram\Desktop\Uni\Semester2\IT\code\tango_with_django_project\.idea\scopes\scope_settings.xml" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Ram\Desktop\Uni\Semester2\IT\code\tango_with_django_project\.idea\tango_with_django_project.iml" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\Ram\Desktop\Uni\Semester2\IT\code\tango_with_django_project\.idea\vcs.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="tango_with_django_project.iws" />
@@ -66,6 +74,16 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="tango_with_django_project" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tango_with_django_project" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tango_with_django_project" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
