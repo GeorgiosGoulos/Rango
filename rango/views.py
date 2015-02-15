@@ -4,7 +4,8 @@ from rango.models import Page
 # Import the Category model
 from rango.models import Category
 
-from rango.forms import CategoryForm, UserForm, UserProfileForm
+from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
+
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
@@ -82,7 +83,6 @@ def add_category(request):
     # Render the form with error messages (if any).
     return render(request, 'rango/add_category.html', {'form':form})
 
-from rango.forms import PageForm
 
 def add_page(request, category_name_slug):
 
@@ -193,11 +193,11 @@ def user_login(request):
                 return HttpResponseRedirect('/rango/')
             else:
                 # An inactive account was used - no logging in!
-                return HttpResponse("Your Rango account is disabled.")
+                return render(request, 'rango/login.html', {'err_msg': 'This account has been disabled'})
         else:
             # Bad login details were provided. So we can't log the user in.
             print "Invalid login details: {0}, {1}".format(username, password)
-            return HttpResponse("Invalid login details supplied.")
+            return render(request, 'rango/login.html', {'err_msg': 'Invalid login details supplied'})
 
     # The request is not a HTTP POST, so display the login form.
     # This scenario would most likely be a HTTP GET.
@@ -209,7 +209,7 @@ def user_login(request):
 
 @login_required
 def restricted(request):
-    return HttpResponse("Since you're logged in, you can see this text!")
+    return render(request, 'rango/restricted.html', {})
 
 
 # Use the login_required() decorator to ensure only those logged in can access the view.
