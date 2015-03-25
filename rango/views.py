@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from rango.models import Page
+from datetime import datetime
 
 # Import the Category model
 from rango.models import Category
 
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 
+from rango.bing_search import run_query
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
@@ -14,23 +16,67 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
+    # TODO: Remove
+    # request.session.set_test_cookie()
     # Query the database for a list of ALL categories currently stored.
     # Order the categories by no. likes in descending order.
     # Retrieve the top 5 only - or all if less than 5.
     # Place the list in our context_dict dictionary which will be passed to the template engine.
     category_list = Category.objects.order_by('-likes')[:5]
     page_list = Page.objects.order_by('-views')[:5]
-
     context_dict = {'categories': category_list,
                     'pages': page_list}
 
+    # Get the number of visits to the site.
+    # We use the COOKIES.get() function to obtain the visits cookie.
+    # If the cookie exists, the value returned is casted to an integer.
+    # If the cookie doesn't exist, we default to zero and cast that.
+    visits = request.session.get('visits')
+    if not visits:
+        visits = 1
+    reset_last_visit_time = False
+
+    reset_last_visit_time = False
+    response = render(request, 'rango/index.html', context_dict)
+
+    last_visit = request.session.get('last_visit')
+    # Does the cookie last_visit exist?
+    if last_visit:
+        last_visit_time = datetime.strptime(last_visit[:-7], "%Y-%m-%d %H:%M:%S")
+
+        if (datetime.now() - last_visit_time).days > 0:
+            # ...reassign the value of the cookie to +1 of what it was before...
+            visits = visits + 1
+            # ...and update the last visit cookie, too.
+            reset_last_visit_time = True
+    else:
+        # Cookie last_visit doesn't exist, so create it to the current date/time.
+        reset_last_visit_time = True
+
+        context_dict['visits'] = visits
+
+    if reset_last_visit_time:
+        request.session['last_visit'] = str(datetime.now())
+        request.session['visits'] = visits
+    context_dict['visits'] = visits
+
     # Render the response and send it back!
-    return render(request, 'rango/index.html', context_dict)
+    response = render(request,'rango/index.html', context_dict)
+
+    return response
 
 
 def about(request):
     context_dict = {'aboutVar': 'foobar'}
-    return render(request, 'rango/about.html', context_dict)
+    # If the visits session varible exists, take it and use it.
+    # If it doesn't, we haven't visited the site so set the count to zero.
+    if request.session.get('visits'):
+        count = request.session.get('visits')
+    else:
+        count = 0
+
+    context_dict['visits'] = count
+    return render(request, 'rango/about.html', {'visits': count})
 
 def category(request, category_name_slug):
     # Create a context dictionary which we can pass to the template rendering engine.
@@ -81,7 +127,7 @@ def add_category(request):
         form = CategoryForm()
     # Bad form (or form details), no form supplied...
     # Render the form with error messages (if any).
-    return render(request, 'rango/add_category.html', {'form':form})
+    return render(request, 'rango/add_category.html', {'form': form})
 
 
 def add_page(request, category_name_slug):
@@ -111,7 +157,13 @@ def add_page(request, category_name_slug):
     return render(request, 'rango/add_page.html', context_dict)
 
 
-def register(request):
+"""def register(request):
+
+    # TODO: Remove
+    # if request.session.test_cookie_worked():
+    #    print ">>>> TEST COOKIE WORKED!"
+    #    request.session.delete_test_cookie()
+
     # A boolean value for telling the template whether the registration was successful.
     # Set to False initially. Code changes value to True when registration succeeds.
     registered = False
@@ -166,9 +218,9 @@ def register(request):
     return render(request,
                   'rango/register.html',
                   {'user_form': user_form, 'profile_form': profile_form, 'registered': registered})
+"""
 
-
-def user_login(request):
+"""def user_login(request):
 
     # If the request is a HTTP POST, try to pull out the relevant information.
     if request.method == 'POST':
@@ -205,13 +257,13 @@ def user_login(request):
         # No context variables to pass to the template system, hence the
         # blank dictionary object...
         return render(request, 'rango/login.html', {})
-
+"""
 
 @login_required
 def restricted(request):
     return render(request, 'rango/restricted.html', {})
 
-
+"""
 # Use the login_required() decorator to ensure only those logged in can access the view.
 @login_required
 def user_logout(request):
@@ -220,3 +272,18 @@ def user_logout(request):
 
     # Take the user back to the homepage.
     return HttpResponseRedirect('/rango/')
+"""
+
+
+def search(request):
+
+    result_list = []
+
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
+
+        if query:
+            # Run our Bing function to get the results list!
+            result_list = run_query(query)
+
+    return render(request, 'rango/search.html', {'result_list': result_list})
