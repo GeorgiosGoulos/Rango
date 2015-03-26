@@ -91,7 +91,7 @@ def category(request, category_name_slug):
         # Note that filter returns >= 1 model instance.
         context_dict['category_name'] = category.name
         context_dict['category_slug'] = category.slug
-        pages = Page.objects.filter(category=category)
+        pages = Page.objects.filter(category=category).order_by('-views')
 
         # Adds our results list to the template context under name pages.
         context_dict['pages'] = pages
@@ -102,6 +102,17 @@ def category(request, category_name_slug):
         # We get here if we didn't find the specified category.
         # Don't do anything - the template displays the "no category" message for us.
         pass
+
+    result_list = []
+
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
+
+        if query:
+            # Run our Bing function to get the results list!
+            result_list = run_query(query)
+
+    context_dict['result_list'] = result_list
 
     # Go render the response and return it to the client.
     return render(request, 'rango/category.html', context_dict)
@@ -287,3 +298,74 @@ def search(request):
             result_list = run_query(query)
 
     return render(request, 'rango/search.html', {'result_list': result_list})
+
+
+def track_url(request):
+    if request.method == 'GET':
+        if 'page_id' in request.GET:
+            page_id = request.GET['page_id']
+            page = None
+            try:
+                page = Page.objects.get(id=int(page_id))
+            except:
+                return HttpResponse('The page_id provided did not correspond to any page stored')
+            page.views += 1
+            page.save()
+            return HttpResponseRedirect(page.url)
+        else:
+            return HttpResponse('No page_id found')
+
+
+def like_category(request):
+    if request.method == 'GET':
+        if 'category_id' in request.GET:
+            category_id = int(request.GET['category_id'])
+            try:
+                category = Category.objects.get(id=int(category_id))
+                category.likes += 1
+                category.save()
+                return HttpResponse(category.likes)
+            except:
+                return HttpResponse(-1)
+
+        else:
+            return HttpResponse(-2)
+
+
+def suggest_category(request):
+        cat_list = []
+        starts_with = ''
+        if request.method == 'GET':
+            starts_with = request.GET['suggestion']
+
+        cat_list = get_category_list(8, starts_with)
+        return render(request, 'rango/cats.html', {'cats': cat_list})
+
+
+def get_category_list(max_results=0, starts_with=''):
+    cat_list = []
+    if starts_with:
+        cat_list = Category.objects.filter(name__istartswith=starts_with)
+
+    if max_results > 0:
+        if len(cat_list) > max_results:
+            cat_list = cat_list[:max_results]
+
+    return cat_list
+
+@login_required
+def auto_add_page(request):
+    context_dict = {}
+    if request.method == 'GET':
+        if all(k in request.GET for k in ("catid", 'url', 'title')):
+            category = Category.objects.get(id=int(request.GET["catid"]))
+            context_dict['category'] = category
+            page = Page.objects.get_or_create(category=category, url=request.GET["url"], title=request.GET["title"])
+
+            pages = Page.objects.filter(category=category).order_by('-views')
+            context_dict['pages'] = pages
+    try:
+        response = render(request, 'rango/page_list.html', context_dict)
+    except Exception as e:
+        print e.message
+    return response

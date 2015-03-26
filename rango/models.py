@@ -12,6 +12,10 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
+        if self.likes < 0:
+            self.likes = 0
+        if self.views < 0:
+            self.views = 0
         super(Category, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -22,6 +26,11 @@ class Page(models.Model):
     title = models.CharField(max_length=128)
     url = models.URLField()
     views = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if self.views < 0:
+            self.views = 0
+        super(Page, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.title
